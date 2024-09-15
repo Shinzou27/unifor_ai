@@ -1,8 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
-import pandas as pd
+from plot_result import plot_result
 
-def local_random_search_template(objective_function, lower_bounds, upper_bounds, epsilon=0.1, i=10000, rounds=100, earlystopping=float('inf'), maximize=True):
+def local_random_search_template(objective_function, lower_bounds, upper_bounds, epsilon=0.1, i=10000, rounds=100, max_nbh=20, earlystopping=float('inf'), maximize=True):
   def perturb(x, epsilon):
     return np.random.uniform(low=x-epsilon, high=x+epsilon, size=x.shape)
 
@@ -37,23 +36,4 @@ def local_random_search_template(objective_function, lower_bounds, upper_bounds,
     final_values.append(f_opt)
 
   print(f"\nBest value found: {max(final_values) if maximize else min(final_values):.3f}")
-
-  # Plotagem dos valores finais de cada execução
-  x_axis = np.arange(1, rounds + 1)
-  plt.plot(x_axis, final_values)
-
-  # Tabela de frequência por intervalo
-  final_values = np.round(final_values, 3)
-
-  min_val = int(np.floor(min(final_values)))
-  max_val = int(np.ceil(max(final_values)))
-  bins = np.arange(min_val, max_val + 2, 1) 
-  counts, bin_edges = np.histogram(final_values, bins=bins)
-  df = pd.DataFrame({
-      'Intervalo': [f'{edge}-{edge+1}' for edge in bin_edges[:-1]],
-      'Ocorrências': counts
-  })
-  print("\nFrequência das Soluções Encontradas por Intervalo:")
-  print(df)
-    
-  plt.show()
+  plot_result(objective_function, lower_bounds, upper_bounds, final_values, rounds)
