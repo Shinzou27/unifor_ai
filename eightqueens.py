@@ -4,16 +4,13 @@ import time
 def initial_state():
     """Cria um estado inicial com uma rainha em cada coluna, em uma linha aleatória."""
     return [random.randint(0, 7) for _ in range(8)]
-def temperature_decrement(temperature, current, start_temp, type = 0):
+def temperature_decrement(temperature, current, start_temp, type = 0, nt = 1000, Tnt = 0):
     if type == 0:
         return temperature * 0.99
     elif type == 1:
         return temperature/(1 + 0.99 * math.sqrt(temperature))
     elif type == 2:
-        if current != 1:
-            return temperature/(1 + ((start_temp - temperature)/(current - 1)*start_temp*temperature) * math.sqrt(temperature))
-        else:
-            return temperature/(1 + ((start_temp - temperature)/current*start_temp*temperature) * math.sqrt(temperature))
+        return temperature - (start_temp - Tnt) / nt
         
 def objective_function(state):
     """Calcula o número de pares de rainhas que se atacam no tabuleiro."""
@@ -28,7 +25,12 @@ def neighbor(state):
     """Gera um estado vizinho, mudando a linha de uma rainha aleatória."""
     neighbor_state = state[:]
     col = random.randint(0, 7)
-    new_row = random.randint(0, 7)
+    new_row = state[col]
+    if random.random() < 0.5:
+        new_row = state[col] - 1 if state[col] > 0 else state[col] + 1
+    else:
+        new_row = state[col] + 1 if state[col] < 7 else state[col] - 1
+
     neighbor_state[col] = new_row
     return neighbor_state
 
@@ -73,9 +75,11 @@ def find_all_solutions(type = 0):
 
     return [solutions, attempts]
 # Executa a busca por todas as 92 soluções
-initialTime = time.time()
-type = 1
-result = find_all_solutions(type)
-finalTime = time.time()
-print(f"{len(result[0])} soluções encontradas em {result[1]} tentativas.\nTempo total de execução: {(finalTime - initialTime):.2f}s")
+for i in range(3):
+    initialTime = time.time()
+    type = i
+    result = find_all_solutions(type)
+    finalTime = time.time()
+    print(f"{len(result[0])} soluções encontradas em {result[1]} tentativas.\nTempo total de execução: {(finalTime - initialTime):.2f}s")
+    print(f"\n(Utilizando o {i+1}º método de decaimento)\n")
 bp = 1
